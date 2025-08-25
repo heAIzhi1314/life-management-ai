@@ -1,4 +1,4 @@
-import { Request } from 'express'
+import { Request, Response, Application } from 'express'
 
 declare global {
   namespace Express {
@@ -10,5 +10,16 @@ declare global {
         exp?: number
       }
     }
+    
+    interface Application {
+      use: any
+    }
+    
+    interface Response {
+      status: (code: number) => Response
+      json: (obj: any) => Response
+    }
   }
 }
+
+export {}
