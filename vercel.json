@@ -4,8 +4,8 @@
   "outputDirectory": "dist",
   "installCommand": "pnpm install",
   "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x"
+    "api/index.ts": {
+      "runtime": "nodejs18.x"
     }
   },
   "rewrites": [
