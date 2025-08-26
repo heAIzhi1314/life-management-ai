@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Plus, Edit2, Trash2, Save, X, Download, Upload, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -47,11 +47,7 @@ export default function Settings() {
   const [conflicts, setConflicts] = useState<string[]>([])
 
   // 加载用户自定义关键词
-  useEffect(() => {
-    loadKeywords()
-  }, [])
-
-  const loadKeywords = async () => {
+  const loadKeywords = useCallback(async () => {
     try {
       const response = await fetch('/api/keywords')
       if (response.ok) {
@@ -82,7 +78,11 @@ export default function Settings() {
         }
       }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadKeywords()
+  }, [loadKeywords])
 
   // 保存关键词配置到localStorage（作为备份）
   const saveKeywordsToLocal = (configs: KeywordConfig[]) => {
@@ -288,7 +288,8 @@ export default function Settings() {
         } else {
           toast.error('配置文件格式不正确')
         }
-      } catch (error) {
+      } catch (parseError) {
+        console.error('Failed to parse config file:', parseError)
         toast.error('配置文件解析失败')
       }
     }
@@ -396,7 +397,7 @@ export default function Settings() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">类别</label>
                   <select
                     value={newKeyword.category}
-                    onChange={(e) => setNewKeyword({ ...newKeyword, category: e.target.value as any })}
+                    onChange={(e) => setNewKeyword({ ...newKeyword, category: e.target.value as KeywordConfig['category'] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
@@ -451,7 +452,7 @@ export default function Settings() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">类别</label>
                         <select
                           value={editingKeyword.category}
-                          onChange={(e) => setEditingKeyword({ ...editingKeyword, category: e.target.value as any })}
+                          onChange={(e) => setEditingKeyword({ ...editingKeyword, category: e.target.value as KeywordConfig['category'] })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (

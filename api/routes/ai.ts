@@ -3,13 +3,23 @@ import { authenticateToken } from './auth.js'
 import fetch from 'node-fetch'
 import { supabaseAdmin } from '../lib/supabase.js'
 
+// 扩展Request类型以包含user属性
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: string
+    email: string
+    iat?: number
+    exp?: number
+  }
+}
+
 const router = express.Router()
 
 // 使用认证中间件
 router.use(authenticateToken)
 
 // AI对话接口（流式输出）
-router.post('/chat', async (req: Request, res: Response) => {
+router.post('/chat', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message, context, type = 'text', stream = true } = req.body
     const userId = req.user.userId
@@ -111,7 +121,7 @@ router.post('/chat', async (req: Request, res: Response) => {
 })
 
 // 语音转文字接口
-router.post('/speech-to-text', async (req: Request, res: Response) => {
+router.post('/speech-to-text', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { audio_data } = req.body
 
@@ -141,7 +151,7 @@ router.post('/speech-to-text', async (req: Request, res: Response) => {
 })
 
 // 文字转语音接口
-router.post('/text-to-speech', async (req: Request, res: Response) => {
+router.post('/text-to-speech', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { text, voice = 'default' } = req.body
 
@@ -169,7 +179,7 @@ router.post('/text-to-speech', async (req: Request, res: Response) => {
 })
 
 // 智能分析接口
-router.post('/analyze', async (req: Request, res: Response) => {
+router.post('/analyze', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { data_type, data, analysis_type = 'general' } = req.body
     // 临时移除userId依赖，用于测试
@@ -199,7 +209,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
 })
 
 // 生成建议接口
-router.post('/suggestions', async (req: Request, res: Response) => {
+router.post('/suggestions', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { context, suggestion_type = 'general' } = req.body
     // 临时移除userId依赖，用于测试
